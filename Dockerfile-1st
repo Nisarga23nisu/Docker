@@ -1,8 +1,10 @@
 #EC2-user
 
 sudo yum update -y
-
 sudo yum install docker -y
+
+#UBUNTU
+sudo apt install docker.io -y
 
 sudo systemctl start docker
 
