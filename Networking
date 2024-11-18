@@ -1,0 +1,38 @@
+docker pull nginx
+docker run -it -d --name my_nginx1 -p 8080:80 nginx
+docker run -it -d --name my_nginx2 -p 8081:80 nginx
+docker images
+docker ps
+docker ps -a
+
+docker inspect bridge
+#two containers are seen
+
+docker exec -it my_nginx1 bash
+#login ti the bridge network
+apt update
+apt install -y iputils-ping
+ping 172.17.0.3
+
+docker network create --driver bridge my_bridge
+docker network ls
+docker run -it -d --name my_nginx4 -p 8080-8090:80 --network my_bridge nginx
+docker run -it -d --name my_nginx5 -p 8080-8090:80 --network my_bridge nginx
+docker ps
+docker network ls
+ifconfig
+
+docker exec -it my_nginx4 bash
+#login ti the bridge network
+apt update
+apt install -y iputils-ping
+ping 172.18.0.2
+or
+ping my_nginx5
+
+docker run -it -d --name my_nginx6 -p 8080-8090:80 --network host nginx
+#WARNING: Published ports are discarded when using host network mode
+
+
+
+
