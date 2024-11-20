@@ -1,0 +1,41 @@
+docker build -t jenkins:latest .
+
+docker run -it -d -p 8080:8080 -p 50000:50000 --name jenkins-container jenkins
+#92b9a42e15447caf7700113ec68d884980d57f4cd02fb49dd6cf7b261ed8270d
+
+docker images 
+#REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+#jenkins      latest    0f783c0a2985   3 minutes ago   985MB
+#ubuntu       latest    fec8bfd95b54   5 weeks ago     78.1MB
+
+docker ps -a
+#CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                                                                      NAMES
+#92b9a42e1544   jenkins   "java -jar /usr/shar…"   14 minutes ago   Up 14 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 0.0.0.0:50000->50000/tcp, :::50000->50000/tcp   jenkins-container
+
+##############.....Dockerfile......#################
+# Use an Ubuntu base image
+FROM ubuntu:latest
+
+# Set environment variables for non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update the package list and install necessary packages, including Java 17
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk curl gnupg && \
+    curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | tee \
+    /usr/share/keyrings/jenkins-keyring.asc > /dev/null && \
+    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+    https://pkg.jenkins.io/debian binary/ | tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y jenkins && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Manually download the latest Jenkins WAR file to ensure it’s available
+RUN curl -L -o /usr/share/jenkins/jenkins.war https://get.jenkins.io/war-stable/latest/jenkins.war
+
+# Expose Jenkins default port
+EXPOSE 8080
+
+# Start Jenkins in the foreground
+CMD ["java", "-jar", "/usr/share/jenkins/jenkins.war"]
