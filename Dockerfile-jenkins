@@ -12,6 +12,9 @@ docker ps -a
 #CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                                                                      NAMES
 #92b9a42e1544   jenkins   "java -jar /usr/shar…"   14 minutes ago   Up 14 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 0.0.0.0:50000->50000/tcp, :::50000->50000/tcp   jenkins-container
 
+docker logs jenkins-container
+#d7d239539d884fb38e836ed5657f6740------copy that initialpassword to jenkins install
+
 ##############.....Dockerfile......#################
 # Use an Ubuntu base image
 FROM ubuntu:latest
