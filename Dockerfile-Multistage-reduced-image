@@ -1,0 +1,49 @@
+# Stage 1: Build stage............................
+FROM ubuntu:latest AS build
+
+# Set environment variables for non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install required packages (Java 17, curl, gnupg) and download Jenkins WAR
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk curl gnupg && \
+    curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null && \
+    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/ | tee /etc/apt/sources.list.d/jenkins.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y jenkins && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    curl -L -o /usr/share/jenkins/jenkins.war https://get.jenkins.io/war-stable/latest/jenkins.war
+
+# Stage 2: Final stage (production image)................................
+FROM ubuntu:latest
+
+# Set environment variables for non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install only the necessary runtime dependencies
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk curl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy Jenkins WAR file from the build stage
+COPY --from=build /usr/share/jenkins/jenkins.war /usr/share/jenkins/jenkins.war
+
+# Expose Jenkins default port
+EXPOSE 8080
+
+# Start Jenkins in the foreground
+CMD ["java", "-jar", "/usr/share/jenkins/jenkins.war"]
+
+
+
+docker build -t normal-image:latest .
+
+docker images
+985MB
+
+#add stage2 to the dockerfile
+docker build -t normal-image1:latest .
+docker images
+883MB
+#Image gets reduced
+
